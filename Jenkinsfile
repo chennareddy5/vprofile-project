@@ -40,7 +40,6 @@ pipeline {
                 sh 'mvn test'
             }
         }
-<<<<<<< HEAD
     	stage('package'){
             steps {
                 sh 'mvn clean package'
