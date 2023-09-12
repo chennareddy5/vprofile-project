@@ -40,6 +40,7 @@ pipeline {
                 sh 'mvn test'
             }
         }
+<<<<<<< HEAD
     	stage('package'){
             steps {
                 sh 'mvn clean package'
@@ -61,6 +62,9 @@ pipeline {
                     )
             }
         }
+=======
+
+>>>>>>> 0c2934aa2b010feca9a6a747cf975f8a3d4a58fd
 
 
 
