@@ -51,7 +51,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '15.206.209.238:8081',
+                    nexusUrl: '3.110.164.211:8081',
                     groupId: 'com.visualpathit',
                     version: 'v2',
                     repository: 'vprofile-release',
@@ -62,5 +62,11 @@ pipeline {
                 )
             }
         }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
     }
-}
+} 
