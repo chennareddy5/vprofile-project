@@ -1,37 +1,32 @@
-
 pipeline {
-    
-	agent any
-	
-	tools {
-        maven "MAVEN3"
-        jdk "OracleJDK8"
-    }
-	
-    environment {
+    agent any
 
-        ARTVERSION = "${env.BUILD_ID}"
+    tools {
+        maven "MAVEN3"
+    }
+
+    environment {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
-        SNAP_REPO = "vprofile-snapshot"
-        NEXUS_USER = "admin"
-        NEXUS_PASS = "cznexus"
-        RELEASE_REPO = "vprofile-release"
-        CENTRAL_REPO = "vpro-maven-central"
-        NEXUSIP = "172.31.12.50"
-        NEXUSPORT = "8081"
-        NEXUS_GRP_REPO = "vpro-maven-group"
-        NEXUS_LOGIN = "nexuslogin"
+        NEXUS_URL = "172.31.40.209:8081"
+        NEXUS_REPOSITORY = "vprofile-release"
+        NEXUS_REPOGRP_ID = "vprofile-grp-repo"
+        NEXUS_CREDENTIAL_ID = "nexuslogin"
         SONARSERVER = "sonarserver"
         SONARSCANNER = "sonarscanner"
-        
+        ARTVERSION = "${env.BUILD_ID}"
     }
-	
-    stages{
-        
-        stage('BUILD'){
+
+    stages {
+        stage('checkout') {
             steps {
-                sh 'mvn  -DskipTests install'
+                git 'https://github.com/chennareddy5/vprofile-project.git'
+            }
+        }
+
+        stage('BUILD') {
+            steps {
+                sh 'mvn clean install -DskipTests'
             }
             post {
                 success {
@@ -41,75 +36,57 @@ pipeline {
             }
         }
 
-	    stage('UNIT TEST'){
+        stage('UNIT TEST') {
             steps {
-                sh 'mvn  test'
+                sh 'mvn test'
             }
         }
 
-	    stage('INTEGRATION TEST'){
+        stage('package') {
             steps {
-                sh 'mvn verify  -DskipUnitTests'
+                sh 'mvn clean package'
             }
         }
-		
-        stage ('CODE ANALYSIS WITH CHECKSTYLE'){
+
+        stage('Upload Artifacts') {
             steps {
-                sh 'mvn  checkstyle:checkstyle'
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '3.110.164.211:8081',
+                    groupId: 'com.visualpathit',
+                    version: 'v2',
+                    repository: 'vprofile-release',
+                    credentialsId: 'nexuslogin',
+                    artifacts: [
+                        [artifactId: 'vprofile', type: 'war', file: 'target/vprofile-v1.war']
+                    ]
+                )
             }
-            post {
-                success {
-                    echo 'Generated Analysis Result'
+        }
+
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool ("${SONARSCANNER}")
+            }
+            steps {
+                withSonarQubeEnv("SONARSERVER") {
+                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                        -Dsonar.projectName=vprofile-repo \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources=src/ \
+                        -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                        -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                        -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                        -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
                 }
             }
         }
-
-        stage('CODE ANALYSIS with SONARQUBE') {
-          
-		  environment {
-             scannerHome = tool "${SONARSCANNER}"
-          }
-
-          steps {
-            withSonarQubeEnv("${SONARSERVER}") {
-               sh  '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
-                   -Dsonar.projectName=vprofile-repo \
-                   -Dsonar.projectVersion=1.0 \
-                   -Dsonar.sources=src/ \
-                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
-            }
-          }
-        }
-
-        stage("Quality Gate") {
-            steps{
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage("Publish to Nexus Repository") {
-            steps {
-                script {
-                        nexusArtifactUploader(
-                            nexusVersion: "${NEXUS_VERSION}",
-                            protocol: "${NEXUS_PROTOCOL}",
-                            nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
-                            groupId: "${NEXUS_GRP_REPO}",
-                            version: "${ARTVERSION}",
-                            repository: "${RELEASE_REPO}",
-                            credentialsId: "${NEXUS_LOGIN}",
-                            artifacts: [
-                                [artifactId: 'vproapp',
-                                classifier: '',
-                                file: 'target/vprofile-v2.war',
-                                type: 'war']
-                            ]
-                        )
-                   }
-            }
-        }
+    }
+}
