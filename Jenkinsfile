@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     tools {
+        // Define the Maven tool named "MAVEN3"
         maven "MAVEN3"
     }
 
@@ -50,18 +51,21 @@ pipeline {
 
         stage('Upload Artifacts') {
             steps {
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: '3.110.164.211:8081',
-                    groupId: 'com.visualpathit',
-                    version: 'v2',
-                    repository: 'vprofile-release',
-                    credentialsId: 'nexuslogin',
-                    artifacts: [
-                        [artifactId: 'vprofile', type: 'war', file: 'target/vprofile-v1.war']
-                    ]
-                )
+                script {
+                    // Use double curly braces for string interpolation
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: '3.110.164.211:8081',
+                        groupId: 'com.visualpathit',
+                        version: 'v2',
+                        repository: 'vprofile-release',
+                        credentialsId: 'nexuslogin',
+                        artifacts: [
+                            [artifactId: 'vprofile', type: 'war', file: 'target/vprofile-v1.war']
+                        ]
+                    )
+                }
             }
         }
 
@@ -74,19 +78,22 @@ pipeline {
         stage('CODE ANALYSIS with SONARQUBE') {
             environment {
                 scannerHome = tool "${SONARSCANNER}"
-            
+            }
             steps {
-                withSonarQubeEnv("${SONARSERVER}") {
-                    sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
-                        -Dsonar.projectName=vprofile-repo \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=src/ \
-                        -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                        -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                        -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                        -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+                script {
+                    // Use double curly braces for string interpolation
+                    withSonarQubeEnv("${SONARSERVER}") {
+                        sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                            -Dsonar.projectName=vprofile-repo \
+                            -Dsonar.projectVersion=1.0 \
+                            -Dsonar.sources=src/ \
+                            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                            -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+                    }
                 }
             }
         }
-      }   
-}        
+    }
+}
