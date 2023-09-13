@@ -22,7 +22,8 @@ pipeline {
             steps {
                 git 'https://github.com/chennareddy5/vprofile-project.git'
             }
-        }
+	}
+     }
 
         stage('BUILD') {
             steps {
@@ -87,6 +88,7 @@ pipeline {
                    -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                    -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
             }
-
-    }
-} 
+       }
+   }  
+}
+	
