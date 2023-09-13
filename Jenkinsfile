@@ -88,26 +88,25 @@ pipeline {
             }
         }
 
-        stage("Publish to Nexus Repository") {
+        stage("UploadArtifactUploader") {
             steps {
-                script {
-                    nexusArtifactUploader(
-                        nexusVersion: "${NEXUS_VERSION}",
-                        protocol: "${NEXUS_PROTOCOL}",
-                        nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
-                        groupId: "${NEXUS_REPOGRP_ID}",
-                        version: "${ARTVERSION}",
-                        repository: "${NEXUS_REPOSITORY}",
-                        credentialsId: "${NEXUS_CREDENTIAL_ID}",
-                        artifacts: [
-                            [artifactId: 'vproapp',
-                             classifier: '',
-                             file: 'target/vprofile-v2.war',
-                             type: 'war']
-                        ]
-                    )
-                }
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
+                    groupId: 'QA', // Fixed the typo here
+                    version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", // Added the timestamp
+                    repository: "${NEXUS_REPOSITORY}", // Ensure RELEASE_REPO is defined
+                    credentialsId: "${NEXUS_LOGIN}", // Ensure NEXUS_LOGIN is defined
+                    artifacts: [
+                        [artifactId: 'vproapp',
+                            classifier: '',
+                            file: 'target/vprofile-v2.war',
+                            type: 'war']
+                    ]
+                )
             }
         }
     }
 }
+
