@@ -1,29 +1,28 @@
 pipeline {
-    
-	agent any
-/*	
-	tools {
-        maven "maven3"
+    agent any
+
+    tools {
+        maven "MAVEN3"
     }
-*/	
+
     environment {
         NEXUS_VERSION = "nexus3"
         NEXUS_PROTOCOL = "http"
         NEXUS_URL = "172.31.40.209:8081"
         NEXUS_REPOSITORY = "vprofile-release"
-	NEXUS_REPOGRP_ID    = "vprofile-grp-repo"
+        NEXUS_REPOGRP_ID = "vprofile-grp-repo"
         NEXUS_CREDENTIAL_ID = "nexuslogin"
         ARTVERSION = "${env.BUILD_ID}"
     }
-	
-    stages{
-        stage('checkout'){
+
+    stages {
+        stage('checkout') {
             steps {
                 git 'https://github.com/chennareddy5/vprofile-project.git'
             }
         }
-        
-        stage('BUILD'){
+
+        stage('BUILD') {
             steps {
                 sh 'mvn clean install -DskipTests'
             }
@@ -35,37 +34,39 @@ pipeline {
             }
         }
 
-	stage('UNIT TEST'){
+        stage('UNIT TEST') {
             steps {
                 sh 'mvn test'
             }
         }
-    	stage('package'){
+
+        stage('package') {
             steps {
                 sh 'mvn clean package'
             }
         }
+
         stage('Upload Artifacts') {
-          steps {
-                    nexusArtifactUploader(
-                      nexusVersion: 'nexus3',
-                      protocol: 'http',
-                      nexusUrl: '15.206.209.238:8081',
-                      groupId: 'com.visualpathit',
-                      version: 'v2',
-                      repository: 'vprofile-release',
-                      credentialsId: 'nexuslogin',
-                      artifacts: [
+            steps {
+                nexusArtifactUploader(
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '15.206.209.238:8081',
+                    groupId: 'com.visualpathit',
+                    version: 'v2',
+                    repository: 'vprofile-release',
+                    credentialsId: 'nexuslogin',
+                    artifacts: [
                         [artifactId: 'vprofile', type: 'war', file: 'target/vprofile-v1.war']
-                      ]
-                    )
+                    ]
+                )
             }
         }
 
-
-
+        stage('Checkstyle Analysis') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
     }
-
-
 }
- 
