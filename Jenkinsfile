@@ -93,7 +93,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
+                    nexusUrl: '3.110.164.211:8081',
                     groupId: 'QA', // Fixed the typo here
                     version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", // Added the timestamp
                     repository: "${NEXUS_REPOSITORY}", // Ensure RELEASE_REPO is defined
