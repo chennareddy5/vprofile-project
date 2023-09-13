@@ -52,13 +52,13 @@ pipeline {
         stage('Upload Artifacts') {
             steps {
                 nexusArtifactUploader(
-                    nexusVersion: "${NEXUS_VERSION}",
-                    protocol: "${NEXUS_PROTOCOL}",
-                    nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
-                    groupId: "${NEXUS_REPOGRP_ID}",
-                    version: "${ARTVERSION}",
-                    repository: "${NEXUS_REPOSITORY}",
-                    credentialsId: "${NEXUS_CREDENTIAL_ID}",
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: '3.110.164.211:8081',
+                    groupId: 'com.visualpathit',
+                    version: 'v2',
+                    repository: 'vprofile-release',
+                    credentialsId: 'nexuslogin',
                     artifacts: [
                         [artifactId: 'vprofile', type: 'war', file: 'target/vprofile-v1.war']
                     ]
