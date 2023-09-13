@@ -82,8 +82,28 @@ pipeline {
                 timeout(time: 1, unit: 'HOURS') {
                 }
             }
+        }stage("Publish to Nexus Repository") {
+            steps {
+                script {
+                        nexusArtifactUploader(
+                            nexusVersion: "${NEXUS_VERSION}",
+                            protocol: "${NEXUS_PROTOCOL}",
+                            nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                            groupId: "${NEXUS_GRP_REPO}",
+                            version: "${ARTVERSION}",
+                            repository: "${RELEASE_REPO}",
+                            credentialsId: "${NEXUS_LOGIN}",
+                            artifacts: [
+                                [artifactId: 'vproapp',
+                                classifier: '',
+                                file: 'target/vprofile-v2.war',
+                                type: 'war']
+                            ]
+                        )
+                   }
+            }
         }
-        
+                
     
         
     }
