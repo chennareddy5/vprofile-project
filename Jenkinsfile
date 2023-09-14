@@ -54,7 +54,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '3.110.164.211:8081',
+                    nexusUrl: '3.111.32.187:8081',
                     groupId: 'com.visualpathit',
                     version: 'v2',
                     repository: 'vprofile-release',
@@ -93,11 +93,11 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
-                    groupId: 'QA', // Fixed the typo here
-                    version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", // Added the timestamp
-                    repository: "${RELEASE_REPO}", // Ensure RELEASE_REPO is defined
-                    credentialsId: "${NEXUS_LOGIN}", // Ensure NEXUS_LOGIN is defined
+                    nexusUrl: '3.111.32.187:8081',
+                    groupId: 'QA', 
+                    version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", 
+                    repository: 'vprofile-release',
+                    credentialsId: 'nexuslogin',
                     artifacts: [
                         [artifactId: 'vproapp',
                             classifier: '',
