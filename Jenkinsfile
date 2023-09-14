@@ -54,7 +54,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '3.111.32.187:8081',
+                    nexusUrl: '3.110.164.211:8081',
                     groupId: 'com.visualpathit',
                     version: 'v2',
                     repository: 'vprofile-release',
@@ -66,24 +66,16 @@ pipeline {
             }
         }
 
-        stage('CODE ANALYSIS with SONARQUBE') {
-            environment {
-                scannerHome = tool "${SONARSCANNER}"
-            }
+        stage('Checkstyle Analysis') {
             steps {
-                script {
-                    withSonarQubeEnv("${SONARSERVER}") {
-                        sh """${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=vprofile \
-                            -Dsonar.projectName=vprofile-repo \
-                            -Dsonar.projectVersion=1.0 \
-                            -Dsonar.sources=src/ \
-                            -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
-                            -Dsonar.junit.reportsPath=target/surefire-reports/ \
-                            -Dsonar.jacoco.reportsPath=target/jacoco.exec \
-                            -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml \
-                            -Dsonar.login=YOUR_SONAR_AUTH_TOKEN"""
-                    }
+                sh 'mvn checkstyle:checkstyle'
+            }
+        }
+
+        stage("sonarqubescan") {
+            steps {
+                withSonarQubeEnv('sonarserver') {
+                    sh "mvn sonar:sonar"
                 }
             }
         }
@@ -101,15 +93,15 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '3.110.164.211:8081',
-                    groupId: 'QA', 
-                    version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", 
-                    repository: 'vprofile-release', 
-                    credentialsId: 'nexuslogin',
+                    nexusUrl: "${NEXUS_URL}:${NEXUS_PORT}",
+                    groupId: 'QA', // Fixed the typo here
+                    version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}", // Added the timestamp
+                    repository: "${RELEASE_REPO}", // Ensure RELEASE_REPO is defined
+                    credentialsId: "${NEXUS_LOGIN}", // Ensure NEXUS_LOGIN is defined
                     artifacts: [
                         [artifactId: 'vproapp',
                             classifier: '',
-                            file: 'target/vprofile-v1.war',
+                            file: 'target/vprofile-v2.war',
                             type: 'war']
                     ]
                 )
