@@ -29,7 +29,7 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                git 'https://github.com/chennareddy5/cd-with-ecr-ecs.git'
+                git 'https://github.com/chennareddy5/vprofile-project.git'
             }
         }
 
@@ -62,7 +62,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '3.110.153.177:8081',
+                    nexusUrl: '65.0.7.154:8081',
                     groupId: 'com.visualpathit',
                     version: 'v2',
                     repository: 'vprofile-release',
@@ -120,7 +120,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '3.110.153.177:8081',
+                    nexusUrl: '65.0.7.154:8081/',
                     groupId: 'QA',
                     version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}",
                     repository: 'vprofile-release',
