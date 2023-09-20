@@ -62,7 +62,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '65.0.7.154:8081',
+                    nexusUrl: '3.109.55.171:8081/',
                     groupId: 'com.visualpathit',
                     version: 'v2',
                     repository: 'vprofile-release',
@@ -120,7 +120,7 @@ pipeline {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
                     protocol: 'http',
-                    nexusUrl: '65.0.7.154:8081/',
+                    nexusUrl: '3.109.55.171:8081/',
                     groupId: 'QA',
                     version: "${ARTVERSION}-${env.BUILD_TIMESTAMP}",
                     repository: 'vprofile-release',
@@ -128,7 +128,7 @@ pipeline {
                     artifacts: [
                         [artifactId: 'vproapp',
                             classifier: '',
-                            file: 'target/vprofile-v1.war',
+                            file: 'target/vprofile-v2.war',
                             type: 'war']
                     ]
                 )
@@ -140,7 +140,7 @@ pipeline {
         always {
             echo "Slack Notification"
             slackSend(
-                channel: '#jenkinsci',
+                channel: '#cd-jenkins',
                 color: COLOR_MAP[currentBuild.currentResult],
                 message: "${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
             )
