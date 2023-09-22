@@ -9,8 +9,8 @@ pipeline {
 	agent any
 	
     environment {
-        cluster = "czproprodcluster"
-        service = "czproprodsvc"
+        cluster = "prod"
+        service = "prod-svc"
         
 
 
